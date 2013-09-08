@@ -15,6 +15,7 @@ let g:sftpvim_load = 1
 function! SftpSync(file_name, is_upload)
     python << EOF
 import sys
+import traceback
 import os
 from path import path
 import fileinput
@@ -37,6 +38,8 @@ class SftpSyncClass(object):
             config_file, relative_path = result
             remote_config = self._load_config(config_file)
             dest_file = path(remote_config['remote']) / relative_path
+            dest_file = unicode(dest_file)
+            file_path = unicode(file_path)
             ret, msg = self._transfer_file(remote_config, file_path,
                                            dest_file, upload)
             if not ret:
@@ -103,6 +106,7 @@ class SftpSyncClass(object):
             t.close()
             return True, 'OK'
         except BaseException as e:
+            traceback.print_exc()
             msg = u"Upload Error,<{0}>".format(e)
             return False, msg
 
