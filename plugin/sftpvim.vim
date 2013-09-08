@@ -6,6 +6,11 @@ if !has("python")
     finish
 endif
 
+if exists("g:sftpvim_load")
+    finish
+endif
+
+let g:sftpvim_load = 1
 
 function! SftpSync(file_name, is_upload)
     python << EOF
@@ -15,6 +20,7 @@ from path import path
 import fileinput
 import socket
 import paramiko
+import vim
 
 class SftpSyncClass(object):
     CONFIG_FILENAME = '.sftpcfg'
