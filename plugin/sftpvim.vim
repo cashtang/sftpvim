@@ -28,12 +28,16 @@ class SftpSyncClass(object):
     def __init__(self):
         pass
 
+    def message(self, msg):
+        print msg
+        sys.stdout.flush()
+
     def run(self, files, upload=True):
         for f in files:
             file_path = path(f).realpath()
             result = self._find_config_recursive(file_path)
             if not result:
-                print u"File <{0}> not under sftp config".format(f)
+                self.message(u"File <{0}> not under sftp config".format(f))
                 return
             config_file, relative_path = result
             remote_config = self._load_config(config_file)
@@ -43,7 +47,7 @@ class SftpSyncClass(object):
             ret, msg = self._transfer_file(remote_config, file_path,
                                            dest_file, upload)
             if not ret:
-                print u"Upload Error :<{0}>".format(msg)
+                self.message(u"Upload Error :<{0}>".format(msg))
                 return
 
     def _find_config_recursive(self, dest_file):
@@ -85,7 +89,7 @@ class SftpSyncClass(object):
             hostkeytype = host_keys[config['host']].keys()[0]
             hostkey = host_keys[config['host']][hostkeytype]
 
-        print u"wait connect to remote..."
+        self.message(u"wait connect to remote...")
         sock = None
         timeout = config.get('timeout', 5)
         port = config.get('port', 22)
@@ -100,7 +104,7 @@ class SftpSyncClass(object):
         try:
             t = paramiko.Transport(sock)
             t.connect(username=config['user'], password=config['password'], hostkey=hostkey)
-            print u"Connect remote success!"
+            self.message(u"Connect remote success!")
             sftp = paramiko.SFTPClient.from_transport(t)
             self._transform(sftp, [(src_path, dest_path)])
             t.close()
@@ -127,8 +131,8 @@ class SftpSyncClass(object):
                 sftp.mkdir(dst_dir)
             except IOError:
                 pass
-            print u"Upload file <{0}>".format(src)
-            print u"Target <{0}>".format(dst)
+            self.message(u"Upload file <{0}>".format(src))
+            self.message(u"Target <{0}>".format(dst))
             sftp.put(src, dst)
 
 def do_main(file_name, upload):
